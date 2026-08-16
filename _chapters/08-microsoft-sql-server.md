@@ -403,17 +403,17 @@ exec sp_BlitzIndex
 
 Use the [Ola Hallengren SQL Server Maintenance Solutions](https://ola.hallengren.com/) for excellent pre-made community backed maintenance jobs.
 
-![azure data studio adminpack](/images/posts/2023-04-07-dotnet-development/azure-data-studio-adminpack.webp)
+![azure data studio adminpack](images/sql-server/azure-data-studio-adminpack.png)
 
-![azure data studio sql agent jobs](/images/posts/2023-04-07-dotnet-development/azure-data-studio-sql-agent-jobs.webp)
+![azure data studio sql agent jobs](images/sql-server/azure-data-studio-sql-agent-jobs.png)
 
 ## SQL Profiler
 
-![azure data studio launch profiler](/images/posts/2023-04-07-dotnet-development/azure-data-studio-launch-profiler.webp)
+![azure data studio launch profiler](images/sql-server/azure-data-studio-launch-profiler.png)
 
-![azure data studio profiler 1](/images/posts/2023-04-07-dotnet-development/azure-data-studio-profiler1.webp)
+![azure data studio profiler 1](images/sql-server/azure-data-studio-profiler1.png)
 
-![azure data studio profiler 2](/images/posts/2023-04-07-dotnet-development/azure-data-studio-profiler2.webp)
+![azure data studio profiler 2](images/sql-server/azure-data-studio-profiler2.png)
 
 ## SQL Query Store
 

@@ -19,6 +19,11 @@ import sys
 CHAPTER_LINK = re.compile(r"\]\((\d{2}-[a-z0-9-]+)\.html(#[a-zA-Z0-9_-]+)?\)")
 LOCAL_ANCHOR = re.compile(r"\]\((#[a-zA-Z0-9_-]+)\)")
 EXPLICIT_ID = re.compile(r"\{#([a-zA-Z0-9_-]+)\}\s*$")
+IMAGE = re.compile(r"!\[([^\]]*)\]\(([^)\s]+)")
+
+# What graphicx can embed.  Anything else fails in the LaTeX run, well after
+# pandoc has already said the document is fine.
+PDF_IMAGE_TYPES = {".png", ".jpg", ".jpeg", ".pdf", ".eps"}
 
 # Languages rouge is expected to know.  A typo here means an unhighlighted block
 # on the site and a pandoc warning in the PDF.
@@ -63,6 +68,7 @@ def main():
     stems = {os.path.basename(p)[:-3] for p in paths}
     numbers = {}
     anchors = {}
+    images_seen = set()
     fence_total = 0
 
     # First pass: collect every anchor each chapter offers.
@@ -158,8 +164,35 @@ def main():
             if anchor[1:] not in anchors[stem]:
                 fail(f"link to {anchor}, which is not a heading in this chapter")
 
+        # Images have to satisfy two consumers.  Jekyll wants a path relative to
+        # the site root so that a --baseurl deployment still resolves it, and
+        # pandoc resolves the same path against the repo root.  A leading slash
+        # breaks the first and sends the second looking at the filesystem root.
+        for alt, target in IMAGE.findall(body):
+            images_seen.add(target)
+            if target.startswith(("http://", "https://")):
+                continue
+            if target.startswith("/"):
+                fail(f"image {target} is an absolute path; make it relative to "
+                     "the repo root so Jekyll and pandoc both find it")
+            elif not os.path.isfile(target):
+                fail(f"image {target} does not exist")
+            elif os.path.splitext(target)[1].lower() not in PDF_IMAGE_TYPES:
+                # graphicx cannot read webp or svg, so the PDF build dies at the
+                # LaTeX stage rather than in pandoc.
+                fail(f"image {target} is not a format LaTeX can embed "
+                     f"({', '.join(sorted(PDF_IMAGE_TYPES))})")
+            if not alt.strip():
+                fail(f"image {target} has no alt text")
+
+    # Unreferenced files are how a repo silently accumulates dead weight.
+    for path in sorted(glob.glob("images/**/*", recursive=True)):
+        if os.path.isfile(path) and path not in images_seen:
+            failures.append(f"{path}: not referenced by any chapter")
+
     print(f"{len(paths)} chapters, {fence_total} code fences, "
-          f"{sum(len(a) for a in anchors.values())} anchors")
+          f"{sum(len(a) for a in anchors.values())} anchors, "
+          f"{len(images_seen)} images")
 
     if failures:
         print(f"\n{len(failures)} problem(s):", file=sys.stderr)
