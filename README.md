@@ -2,6 +2,9 @@
 
 C#, VB, databases, web and the operations around them.
 
+**Read it at [dotnet-stack-handbook.majorsilence.com](https://dotnet-stack-handbook.majorsilence.com/)**,
+or download the [PDF](https://dotnet-stack-handbook.majorsilence.com/dotnet-stack-handbook.pdf).
+
 This started life as [one very long blog post](https://majorsilence.com/posts/2023/04/07/dotnet-development.html).
 It is now fifteen chapters and an appendix, published as a website and a PDF, with
 an `examples/` tree that CI compiles and runs so the listings in the book are known

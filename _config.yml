@@ -43,8 +43,13 @@ parts:
       Knowing the thing is healthy once it is running, and getting it there
       repeatably.
 
-# Set by the Pages workflow; harmless locally.
-url: ""
+# The custom domain, which jekyll-sitemap needs to emit absolute URLs.  The
+# CNAME file at the repo root is what tells Pages to serve it.
+url: "https://dotnet-stack-handbook.majorsilence.com"
+
+# Set by the Pages workflow, which passes --baseurl from configure-pages.  That
+# is empty for a custom domain served at the root and /<repo> otherwise, so
+# leaving it empty here is right for local builds too.
 baseurl: ""
 
 collections:
