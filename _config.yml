@@ -1,0 +1,90 @@
+title: The .NET Stack Handbook
+subtitle: C#, VB, Databases, Web and the Operations Around Them
+author: Peter Gill
+description: >-
+  A working reference for building and running .NET software: the C# and VB
+  languages, desktop and web user interfaces, SQLite, PostgreSQL, SQL Server and
+  Redis, data access, containers, nginx, monitoring and build pipelines.
+version: "1.0-draft"
+lang: en
+repo: https://github.com/majorsilence/dotnet-stack-handbook
+
+# Where the post this book was split out of still lives.
+origin_post: https://majorsilence.com/posts/2023/04/07/dotnet-development.html
+
+# Every chapter targets this unless it says otherwise.
+dotnet_version: "10"
+target_framework: "net10.0"
+
+parts:
+  - number: 1
+    title: The Language
+    blurb: >-
+      C# and VB side by side, the concurrency model they share, and the pieces
+      that turn a pile of classes into an application you can test.
+  - number: 2
+    title: User Interfaces
+    blurb: >-
+      Desktop applications with Windows Forms and .NET MAUI, and printing real
+      documents out of them with Crystal Reports.
+  - number: 3
+    title: Data
+    blurb: >-
+      Four stores worth knowing -- SQLite, PostgreSQL, SQL Server and Redis --
+      and the .NET side of talking to them, from raw ADO.NET up to EF Core.
+  - number: 4
+    title: Web and Hosting
+    blurb: >-
+      ASP.NET Core from dependency injection to Blazor, the JavaScript you still
+      need in the browser, and getting the result served behind nginx.
+  - number: 5
+    title: Operations
+    blurb: >-
+      Knowing the thing is healthy once it is running, and getting it there
+      repeatably.
+
+# Set by the Pages workflow; harmless locally.
+url: ""
+baseurl: ""
+
+collections:
+  chapters:
+    output: true
+    permalink: /:path.html
+
+defaults:
+  - scope:
+      path: ""
+      type: chapters
+    values:
+      layout: chapter
+      toc: true   # jekyll-toc only builds a TOC for pages that opt in
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+  toc_levels: 2..3
+
+plugins:
+  - jekyll-sitemap
+  - jekyll-toc
+
+toc:
+  min_level: 2
+  max_level: 3
+  ordered_list: false
+
+sass:
+  style: compressed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - Makefile
+  - README.md
+  - tools/
+  - build/
+  - vendor/
+  - examples/

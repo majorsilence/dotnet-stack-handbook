@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Examples.Web</RootNamespace>
+  </PropertyGroup>
+
+</Project>

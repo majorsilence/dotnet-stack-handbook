@@ -1,0 +1,19 @@
+@model IEnumerable<Examples.Web.TvShow>
+
+<h1>TV Shows</h1>
+
+<table class="table">
+    <thead>
+        <tr><th>Name</th><th>Episode</th><th>Rating</th></tr>
+    </thead>
+    <tbody>
+    @foreach (var show in Model)
+    {
+        <tr>
+            <td>@show.ShowName</td>
+            <td>@show.Episode</td>
+            <td>@show.Rating</td>
+        </tr>
+    }
+    </tbody>
+</table>

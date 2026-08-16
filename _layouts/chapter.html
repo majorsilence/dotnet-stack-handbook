@@ -1,0 +1,64 @@
+---
+layout: default
+---
+{%- assign chapters = site.chapters | sort: "number" -%}
+
+<article class="chapter">
+  <header class="chapter-header">
+    {%- unless page.unnumbered %}
+      {%- if page.appendix %}
+        {%- assign letters = "A,B,C,D,E,F,G,H,I,J,K,L" | split: "," -%}
+        {%- assign appendix_index = 0 -%}
+        {%- for chapter in chapters -%}
+          {%- if chapter.appendix and chapter.unnumbered != true -%}
+            {%- if chapter.url == page.url -%}{%- assign letter = letters[appendix_index] -%}{%- endif -%}
+            {%- assign appendix_index = appendix_index | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor %}
+    <p class="eyebrow">Appendix {{ letter }}</p>
+      {%- else %}
+        {%- for part in site.parts -%}
+          {%- if part.number == page.part -%}{%- assign part_title = part.title -%}{%- endif -%}
+        {%- endfor %}
+    <p class="eyebrow">Chapter {{ page.number }}{% if part_title %} &middot; {{ part_title }}{% endif %}</p>
+      {%- endif %}
+    {%- endunless %}
+    <h1>{{ page.title }}</h1>
+  </header>
+
+  {%- if page.examples %}
+  <p class="examples-note">
+    The listings in this chapter are built from
+    <a href="{{ site.repo }}/tree/main/examples/{{ page.examples }}"><code>examples/{{ page.examples }}</code></a>,
+    which is compiled on every build.
+  </p>
+  {%- endif %}
+
+  <nav class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    {{ content | toc_only }}
+  </nav>
+
+  <div class="prose">
+    {{ content }}
+  </div>
+
+  <nav class="pager">
+    {%- for chapter in chapters %}
+      {%- if chapter.url == page.url %}
+        {%- assign back = forloop.index0 | minus: 1 %}
+        {%- assign ahead = forloop.index0 | plus: 1 %}
+        {%- if forloop.index0 > 0 %}
+    <a class="pager-prev" href="{{ chapters[back].url | relative_url }}">
+      <span>Previous</span>{{ chapters[back].title }}
+    </a>
+        {%- endif %}
+        {%- if ahead < chapters.size %}
+    <a class="pager-next" href="{{ chapters[ahead].url | relative_url }}">
+      <span>Next</span>{{ chapters[ahead].title }}
+    </a>
+        {%- endif %}
+      {%- endif %}
+    {%- endfor %}
+  </nav>
+</article>

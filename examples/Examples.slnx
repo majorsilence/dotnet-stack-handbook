@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="Examples.AppStructure/Examples.AppStructure.csproj" />
+  <Project Path="Examples.Concurrency/Examples.Concurrency.csproj" />
+  <Project Path="Examples.Data/Examples.Data.csproj" />
+  <Project Path="Examples.Language.Vb/Examples.Language.Vb.vbproj" />
+  <Project Path="Examples.Language/Examples.Language.csproj" />
+  <Project Path="Examples.Tests/Examples.Tests.csproj" />
+  <Project Path="Examples.Web/Examples.Web.csproj" />
+</Solution>

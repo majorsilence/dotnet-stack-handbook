@@ -1,0 +1,26 @@
+<Project>
+
+  <!--
+    Every example targets the framework the book targets.  Bumping the handbook
+    to a new .NET release is this line, the `dotnet_version` pair in _config.yml,
+    and the image tags in the containers chapter.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!--
+      Off on purpose.  These files exist to prove the listings in the book
+      compile, so they have to match what the book prints, and the book does not
+      teach nullable reference types.  Turning this on would make the examples
+      and the chapters disagree, which defeats the point of having them.
+    -->
+    <Nullable>disable</Nullable>
+
+    <!-- These are listings in a book: they are read more than they are run. -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+</Project>

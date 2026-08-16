@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Examples.Concurrency</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BackgroundService and ILogger, for the work queue listings -->
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>
