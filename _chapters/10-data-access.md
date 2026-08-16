@@ -6,6 +6,12 @@ part: 3
 examples: Examples.Data
 ---
 
+Every database chapter in this part showed the same three approaches. This one takes them apart properly.
+
+At the bottom is ADO.NET - `DbConnection`, `DbCommand`, `DbTransaction` - which every provider implements and every higher layer is built on. In the middle is Dapper, which maps query results onto objects and leaves the SQL to you. At the top is Entity Framework Core, which generates the SQL as well and adds change tracking and migrations.
+
+None of them is the correct answer. Knowing all three is what lets you drop a layer when a query needs hand written SQL, without abandoning the ORM everywhere else.
+
 ## DbConnection
 
 A `DbConnection` represents an open connection to a database. It is the base class for database-specific connection classes like `SqlConnection` (SQL Server), `NpgsqlConnection` (PostgreSQL), and `SqliteConnection` (SQLite).

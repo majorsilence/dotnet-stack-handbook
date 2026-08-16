@@ -105,7 +105,9 @@ def main():
             continue
         if "title" not in meta:
             fail("front matter has no title")
-        if "appendix" not in meta:
+        # Numbered chapters carry a number and a part.  Appendices and front
+        # matter carry neither, and are placed by their own flag instead.
+        if "appendix" not in meta and "unnumbered" not in meta:
             for key in ("number", "part"):
                 if key not in meta:
                     fail(f"front matter has no {key}")
@@ -126,6 +128,15 @@ def main():
         for index, line in enumerate(lines, 1):
             stripped = line.lstrip()
             if stripped.startswith("```"):
+                indent = len(line) - len(stripped)
+                # CommonMark accepts at most three spaces of indent on a fence.
+                # A fourth makes it content rather than a delimiter, so an
+                # over-indented closer silently swallows the rest of the file -
+                # in the PDF that means every following chapter renders as code.
+                # Counting these as fences is what let that pass unnoticed.
+                if indent > 3:
+                    fail(f"line {index}: code fence indented {indent} spaces; "
+                         "more than 3 stops it delimiting a block")
                 fences += 1
                 if not fenced:
                     opened_at = index

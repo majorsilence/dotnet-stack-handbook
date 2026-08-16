@@ -6,6 +6,10 @@ part: 3
 examples: Examples.Data
 ---
 
+SQLite is a database that is a file. There is no server to install, no port to open, no user to create; an application opens the file and starts querying. That single property makes it the right choice far more often than people expect: desktop application storage, a cache, test fixtures, and small web applications all work well on it.
+
+This chapter shows the same small task three ways - raw ADO.NET, Dapper, and Entity Framework Core - because those three layers reappear for every other database in this part of the book. Seeing them against the simplest possible store makes the differences between them easy to see. [Data Access in .NET](10-data-access.html) covers each in more depth.
+
 ## SQLite
 
 [SQLite](https://www.sqlite.org/) is a lightweight, serverless, self-contained SQL database engine. It stores the entire database as a single file on disk, requires no separate server process, and is included in .NET by default. SQLite is ideal for development, prototyping, desktop, mobile, and small-to-medium web applications.

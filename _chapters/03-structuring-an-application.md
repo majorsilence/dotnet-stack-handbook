@@ -6,6 +6,10 @@ part: 1
 examples: Examples.AppStructure
 ---
 
+The previous chapters were about writing code that works. This one is about arranging it so that it keeps working after a year of changes and can be tested without standing up a database.
+
+The three patterns here reinforce each other. Inversion of control means a class is handed what it depends on rather than constructing it. The repository pattern puts data access behind an interface, which is what gives inversion of control something worth injecting. Events let one part of an application tell others that something happened without knowing who is listening. The chapter closes on packaging code as NuGet, and on testing, which is the payoff for all of it.
+
 ## IOC {#ioc}
 
 **Inversion of Control (IOC)** means a class does not create the things it depends on. It is given them instead. **Dependency injection (DI)** is the usual way to do that: dependencies are passed into the constructor, and something else decides which concrete implementation to supply.

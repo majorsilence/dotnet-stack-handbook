@@ -5,6 +5,10 @@ number: 4
 part: 2
 ---
 
+Desktop applications did not go away, and .NET still has good answers for them.
+
+Windows Forms is the older of the two covered here and the more direct: a form, a designer, controls with events. It remains the fastest way to put a working tool in front of somebody, and via [Majorsilence.Forms](https://github.com/majorsilence/Majorsilence.Forms) the same code can now run beyond Windows. .NET MAUI is the newer, cross platform framework, with one project targeting Windows, mac, Android and iOS, and XAML rather than a Windows only designer. Which to reach for depends mostly on whether you need to leave Windows and whether the application already exists.
+
 ## Winforms {#winforms}
 
 Windows Forms is the desktop UI framework that has shipped with .NET since the beginning. It is still supported and still a reasonable choice for line of business applications on Windows, especially when a team already knows it. On modern .NET it is Windows only, so set the target framework accordingly.

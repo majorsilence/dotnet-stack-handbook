@@ -6,6 +6,10 @@ part: 1
 examples: Examples.Concurrency
 ---
 
+Work that waits and work that computes are different problems, and .NET gives them different tools. Confusing the two is the usual source of both sluggish applications and mysterious data corruption.
+
+Async and await are for waiting: a network call, a database query, a file read. The thread is released while the wait happens rather than sitting idle. Threads and the thread pool are for computing: work that genuinely needs a CPU. This chapter covers both, the locking that becomes necessary the moment two of them touch the same variable, and an in memory work queue for handing a slow job off and answering the caller straight away.
+
 ## Async/Await
 
 > [Asynchronous programming](https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/async-scenarios)

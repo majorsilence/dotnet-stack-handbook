@@ -6,6 +6,10 @@ part: 1
 examples: Examples.Language
 ---
 
+C# and VB are two languages over one runtime. They compile to the same IL, use the same base class library, and can call each other freely inside one solution. Choosing between them is a matter of taste and of what the team already knows, not of capability.
+
+This chapter covers the three things everything else is built from: variables to hold values, objects to group values with the code that operates on them, and interfaces to describe what an object can do without saying how. Both languages are shown side by side throughout, so a VB developer reading C# code, or the reverse, can see the same idea twice.
+
 ## Variables
 
 Variables are the basic working blocks in code. You use variables to hold values. There are several different variable types but in this lesson we will cover only four of them.

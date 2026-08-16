@@ -69,4 +69,7 @@ normal workflow.
 
 ## Licence
 
-Not chosen yet.
+The book is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); the
+code samples, `examples/` and `tools/` are MIT. Copying a listing into your own
+project carries no obligation beyond the copyright notice — ShareAlike applies to
+the prose, not to the code it prints. See `LICENSE`.

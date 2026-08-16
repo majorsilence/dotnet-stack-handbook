@@ -5,6 +5,10 @@ number: 7
 part: 3
 ---
 
+PostgreSQL is the default choice for a serious relational database when nothing forces another one. It is open source, runs everywhere, and has spent decades accumulating features - JSON columns, full text search, window functions, extensions like PostGIS - without giving up correctness.
+
+The structure here mirrors [SQLite](06-sqlite.html): install it, then the same work through raw ADO.NET with Npgsql, through Dapper, and through Entity Framework Core. The .NET side barely changes between the two databases, which is the point of the provider model.
+
 ## PostgreSQL - Install
 
 Follow the instructions found at [https://www.postgresql.org/download/](https://www.postgresql.org/download/).   

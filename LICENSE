@@ -1,0 +1,28 @@
+This repository is licensed in two parts.
+
+The book
+--------
+The prose - everything under `_chapters/`, plus `index.md` and the rendered
+site and PDF built from them - is licensed under the Creative Commons
+Attribution-ShareAlike 4.0 International License. See `LICENSE-BOOK`.
+
+In short: share it and adapt it, including commercially, as long as you give
+credit and license what you build on it the same way.
+
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+The code
+--------
+Everything under `examples/` and `tools/`, and the code samples printed inside
+the chapters, are licensed under the MIT License. See `LICENSE-CODE`.
+
+In short: use them in your own projects, under any license, with no obligation
+beyond keeping the copyright notice.
+
+The split is deliberate. ShareAlike on a code sample would be a trap: nobody
+should have to relicense their application because they copied ten lines out of
+a book that exists to be copied from.
+
+Site furniture - `_layouts/`, `assets/` - is MIT, as code.
+
+Copyright (c) 2023-2026 Peter Gill

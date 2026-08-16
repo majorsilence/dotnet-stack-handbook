@@ -18,6 +18,23 @@ layout: default
 
 {%- assign chapters = site.chapters | sort: "number" -%}
 
+{%- assign front = chapters | where: "unnumbered", true -%}
+{%- if front.size > 0 %}
+<section class="part">
+  <h2 class="part-title"><span>Front matter</span>Before you start</h2>
+  <ol class="contents">
+    {%- for chapter in front %}
+    <li class="contents-item is-appendix">
+      <a href="{{ chapter.url | relative_url }}">
+        <span class="contents-number">&mdash;</span>
+        <span class="contents-title">{{ chapter.title }}</span>
+      </a>
+    </li>
+    {%- endfor %}
+  </ol>
+</section>
+{%- endif %}
+
 {%- for part in site.parts %}
 <section class="part">
   <h2 class="part-title"><span>Part {{ part.number }}</span>{{ part.title }}</h2>

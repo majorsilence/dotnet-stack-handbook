@@ -79,8 +79,8 @@ Ready to use dashboards for prometheus can be downloaded from [Grafana dashboard
 2. Create dashboards using queries like:
 
 ```text
-     http_requests_total{job="myapp"}
-     up{job="blackbox"}
-     ```
+http_requests_total{job="myapp"}
+up{job="blackbox"}
+```
 
 3. Set up alerts for key metrics (e.g., service downtime, high latency).

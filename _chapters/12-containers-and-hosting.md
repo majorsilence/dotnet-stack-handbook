@@ -5,6 +5,12 @@ number: 12
 part: 4
 ---
 
+Code that runs on your machine is not yet software anyone can use. This chapter is about the gap.
+
+A container packages the application with the runtime it needs, so that what was tested is what ships. nginx sits in front of it as a reverse proxy, terminating TLS and serving static files, because Kestrel should not be the thing facing the internet directly. Kubernetes runs many containers across many machines and restarts them when they fail, which is worth its considerable complexity only once you actually have that problem.
+
+Each step here adds capability and cost. Plenty of applications should stop after the first.
+
 ## Containers - Docker
 
 A Docker container is a lightweight, portable, and self-sufficient unit that packages an application and all its dependencies, ensuring consistent execution across different environments. Containers are isolated from each other and the host system, making deployment and scaling straightforward.
