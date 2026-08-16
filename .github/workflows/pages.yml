@@ -21,7 +21,7 @@ jobs:
     name: Check the chapters
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Structural checks
         # Front matter, fence balance, heading levels, and every cross-chapter
@@ -32,9 +32,9 @@ jobs:
     name: Build and test the examples
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: "10.0.x"
 
@@ -58,7 +58,7 @@ jobs:
             dotnet run --project "examples/$p" --configuration Release --no-build
           done
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results
@@ -70,7 +70,7 @@ jobs:
     name: Build PDF
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install pandoc and TeX
         run: |
@@ -82,7 +82,7 @@ jobs:
       - name: Build the PDF
         run: ./tools/build-pdf.sh --output build/dotnet-stack-handbook.pdf
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dotnet-stack-handbook-pdf
           path: build/dotnet-stack-handbook.pdf
@@ -93,18 +93,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: [chapters, examples, pdf]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.3"
           bundler-cache: true
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
         id: pages
+        with:
+          # Turn Pages on via the API rather than requiring someone to set the
+          # source to "GitHub Actions" by hand in the repository settings.
+          enablement: true
 
       - name: Collect the PDF built above
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dotnet-stack-handbook-pdf
           path: .
@@ -120,7 +124,7 @@ jobs:
       - name: Publish the PDF alongside the site
         run: cp dotnet-stack-handbook.pdf _site/dotnet-stack-handbook.pdf
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -136,4 +140,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

@@ -5,7 +5,9 @@ number: 8
 part: 3
 ---
 
-All sql scripts included in this section expect to be run in sql server management studio, azure data studio, or your preferred sql tool. If you need to install sql server skip to [SQL - Install](#sql-install).
+All sql scripts included in this section expect to be run in your preferred sql tool. If you need to install sql server skip to [SQL - Install](#sql-install).
+
+Azure Data Studio, which earlier versions of this text recommended, was retired by Microsoft and stopped receiving support in February 2026. See [Client tools](#client-tools) for what to use instead.
 
 ## Adventure Works
 
@@ -359,7 +361,7 @@ echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile
 
 ### SQL server extra configuration after the install
 
-Set some initial configuration options in [sql management studio](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16) or [azure data studio](https://learn.microsoft.com/en-us/sql/azure-data-studio/download-azure-data-studio?view=sql-server-ver16&tabs=redhat-install%2Credhat-uninstall). Run the following sql.
+Set some initial configuration options from any of the tools in [Client tools](#client-tools). Run the following sql.
 
 ```sql
 sp_configure 'show advanced options', 1
@@ -369,17 +371,32 @@ sp_configure 'max server memory (MB)', -- 90% of OS MEM
 reconfigure with override
 ```
 
-- SQL Management Studio
+The per database settings worth changing are all reachable from T-SQL, which means the same script works from every tool and on Linux, where there is no Configuration Manager to click through.
 
-  - sql options (database properties)
-    - recovery model: full
-      - If the data is non production or not important feel free to use the simple recovery mode.
-    - Log and Data Growth: 10%
-    - Compatibility: latest version
-    - Query Store - enable “Read write”
+```sql
+-- Full recovery keeps point in time restore available.  If the data is non
+-- production or not important, SIMPLE is fine and the log stops growing.
+ALTER DATABASE YourDatabase SET RECOVERY FULL;
 
-- SQL Server Configuration Manager -> Protocols
-  - Set "Force Encryption" to "yes"
+-- Percentage growth on both files.  The default 1 MB log growth produces
+-- thousands of tiny virtual log files on a busy database.
+ALTER DATABASE YourDatabase MODIFY FILE (NAME = 'YourDatabase',     FILEGROWTH = 10%);
+ALTER DATABASE YourDatabase MODIFY FILE (NAME = 'YourDatabase_log', FILEGROWTH = 10%);
+
+-- Match the engine version so the current query optimiser is used.
+ALTER DATABASE YourDatabase SET COMPATIBILITY_LEVEL = 170;  -- SQL Server 2025
+
+-- Query Store, read write, so it is actually collecting.
+ALTER DATABASE YourDatabase SET QUERY_STORE = ON;
+ALTER DATABASE YourDatabase SET QUERY_STORE (OPERATION_MODE = READ_WRITE);
+```
+
+On Windows, force encryption lives in SQL Server Configuration Manager under Protocols. On Linux, set it with `mssql-conf` instead.
+
+```bash
+sudo /opt/mssql/bin/mssql-conf set network.forceencryption 1
+sudo systemctl restart mssql-server
+```
 
 ## Reference - Admin
 
@@ -403,17 +420,70 @@ exec sp_BlitzIndex
 
 Use the [Ola Hallengren SQL Server Maintenance Solutions](https://ola.hallengren.com/) for excellent pre-made community backed maintenance jobs.
 
-![azure data studio adminpack](images/sql-server/azure-data-studio-adminpack.png)
+Both of those install as stored procedures, so they are run the same way from any client, and scheduled with SQL Server Agent jobs.
 
-![azure data studio sql agent jobs](images/sql-server/azure-data-studio-sql-agent-jobs.png)
+## Client tools {#client-tools}
 
-## SQL Profiler
+Azure Data Studio was the cross platform answer here for years. Microsoft retired it, with support ending in February 2026, and folded its functionality into the VS Code extension below. Anything still recommending it is out of date.
 
-![azure data studio launch profiler](images/sql-server/azure-data-studio-launch-profiler.png)
+- [**MSSQL extension for VS Code**](https://marketplace.visualstudio.com/items?itemName=ms-mssql.mssql) - Microsoft's replacement for Azure Data Studio, and where the effort now goes. Free, runs on linux, mac and windows, and includes query editing, a results grid, schema browsing and query plan viewing.
+- [**DBeaver**](https://dbeaver.io/) - open source and cross platform. Worth knowing because one tool covers SQL Server, PostgreSQL, SQLite and more, which is most of the [Data](07-postgresql.html) part of this book rather than SQL Server alone.
+- [**DataGrip**](https://www.jetbrains.com/datagrip/) - JetBrains, commercial, cross platform, and included with an All Products subscription if you already use Rider.
+- [**SSMS**](https://learn.microsoft.com/en-us/ssms/download-sql-server-management-studio-ssms) - still the most complete tool for administration, and still windows only. Reach for it when you need the deeper admin surface; do not build a workflow around it if your team is on linux or mac.
+- [**sqlcmd**](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility) - the command line client, and the one that works over ssh, inside a container, and in a build pipeline.
 
-![azure data studio profiler 1](images/sql-server/azure-data-studio-profiler1.png)
+The lesson worth taking from the retirement is to prefer T-SQL over a GUI workflow when writing anything down. A script in source control outlives whichever client is fashionable.
 
-![azure data studio profiler 2](images/sql-server/azure-data-studio-profiler2.png)
+## SQL Profiler and Extended Events
+
+The old SQL Profiler and its trace API are deprecated, and the graphical XEvent Profiler was an Azure Data Studio feature that went away with it. **Extended Events** is the supported mechanism, and because a session is created and read with T-SQL, it works from any client on any platform.
+
+Capture statements that took longer than a second.
+
+```sql
+CREATE EVENT SESSION slow_queries ON SERVER
+ADD EVENT sqlserver.sql_batch_completed (
+    ACTION (sqlserver.client_app_name, sqlserver.database_name, sqlserver.sql_text)
+    -- duration is in microseconds
+    WHERE duration > 1000000
+),
+ADD EVENT sqlserver.rpc_completed (
+    ACTION (sqlserver.client_app_name, sqlserver.database_name, sqlserver.sql_text)
+    WHERE duration > 1000000
+)
+ADD TARGET package0.ring_buffer
+WITH (MAX_MEMORY = 4096 KB, TRACK_CAUSALITY = ON, STARTUP_STATE = OFF);
+
+ALTER EVENT SESSION slow_queries ON SERVER STATE = START;
+```
+
+The ring buffer target holds the results in memory. Read it by shredding the XML.
+
+```sql
+SELECT
+    x.e.value('(@timestamp)[1]', 'datetime2') AS occurred,
+    x.e.value('(data[@name="duration"]/value)[1]', 'bigint') / 1000 AS duration_ms,
+    x.e.value('(action[@name="database_name"]/value)[1]', 'nvarchar(128)') AS database_name,
+    x.e.value('(action[@name="client_app_name"]/value)[1]', 'nvarchar(256)') AS client_app,
+    x.e.value('(action[@name="sql_text"]/value)[1]', 'nvarchar(max)') AS sql_text
+FROM (
+    SELECT CAST(st.target_data AS xml) AS target_data
+    FROM sys.dm_xe_session_targets AS st
+    JOIN sys.dm_xe_sessions AS s ON s.address = st.event_session_address
+    WHERE s.name = 'slow_queries' AND st.target_name = 'ring_buffer'
+) AS raw
+CROSS APPLY raw.target_data.nodes('RingBufferTarget/event') AS x(e)
+ORDER BY occurred DESC;
+```
+
+Stop it when finished. An event session left running on a busy server is overhead nobody remembers enabling.
+
+```sql
+ALTER EVENT SESSION slow_queries ON SERVER STATE = STOP;
+DROP EVENT SESSION slow_queries ON SERVER;
+```
+
+Use a `package0.event_file` target instead of the ring buffer when a session should survive a restart or capture more than a few thousand events. For day to day "why was this slow", the [Query Store](#sql-query-store) below is usually the better first stop, because it is always on and keeps its history.
 
 ## SQL Query Store
 
