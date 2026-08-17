@@ -372,6 +372,8 @@ public class TvShow
 
 ## ORM - Entity Framework
 
+Before the listings: EF Core is already a unit of work and `DbSet<T>` is already a repository, so resist the urge to build a second set of both on top of it. [Structuring an Application](03-structuring-an-application.html#repository-and-ef-core) makes that case in full.
+
 Entity Framework Core (EF Core) is a modern, open-source, object-database mapper for .NET. It enables developers to work with databases using .NET objects, eliminating most of the data-access code typically required. EF Core supports LINQ queries, change tracking, updates, and schema migrations across multiple database providers.
 
 **Example: Basic Usage with a DbContext and Model**

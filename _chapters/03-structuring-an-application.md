@@ -107,6 +107,36 @@ it easy to test your business and data layer code separately.
 
 There are different ways to do this. Here are a couple ways.
 
+### Do not put a repository and a unit of work over EF Core {#repository-and-ef-core}
+
+This is the most contested piece of advice in the chapter, so here is the position stated plainly, followed by the reasoning.
+
+**Recommendation.** Use the repository pattern when your data access is ADO.NET or Dapper - as in every listing in this section. Do **not** wrap Entity Framework Core in a generic `IRepository<T>` and an `IUnitOfWork`. EF Core already is both of those patterns, and adding a second copy on top costs you features and buys nothing.
+
+`DbContext` **is** a unit of work. It tracks every change made through it and commits them together when `SaveChanges` is called; that is the definition of the pattern. `DbSet<T>` **is** a repository: a collection-like interface over a table with the query translation attached. So an `IUnitOfWork` holding an `IRepository<Show>` over EF Core is a unit of work wrapping a unit of work, and a repository wrapping a repository.
+
+```cs
+// The unit of work you were about to write.  It already exists.
+using var db = new AppDbContext(connectionString);
+
+db.TvShows.Add(new EfTvShow { ShowName = "Star Trek", Rating = 5.0m });
+db.Episodes.Add(new Episode { Number = "1x12" });
+
+// One transaction, both tables, committed together - or neither.
+await db.SaveChangesAsync();
+```
+
+What the extra layer actually costs:
+
+- **The query gets worse or the abstraction leaks.** A repository that returns `IEnumerable<T>` executes the query and fetches every row, so filtering happens in memory. A repository that returns `IQueryable<T>` keeps the performance but has leaked EF straight through the interface it was supposed to hide, along with every way callers can now break it.
+- **The good parts become unreachable.** `Include`, `AsSplitQuery`, `AsNoTracking`, projection to a DTO, `ExecuteUpdate`, compiled queries, and interceptors are all things a `GetById`/`GetAll`/`Add`/`Delete` interface has no way to express. They come back as a growing pile of `GetShowWithEpisodesAndRatingsNoTracking` methods.
+- **The portability argument does not survive contact with reality.** Repositories are usually justified as "so we can swap the database later". Swapping providers is what EF Core's provider model already does, and the projects that genuinely migrate stores rewrite their queries either way, because the query differences are the hard part and no interface hides them.
+- **The testing argument is weaker than it was.** Mocking `DbSet` is unpleasant, which is where the pattern's popularity came from, but the modern answers are better: SQLite in memory for fast tests, or the real engine in a container for the ones that must be honest. Both test the SQL rather than testing that a mock returns what the test told it to return.
+
+**When a repository over EF Core does earn its place**, it is not a generic one. It is a small, hand-written, domain-shaped interface - `IShowCatalog` with `FindByName` and `TopRated` - hiding a query you want named and tested in one place. That is a query object with a nicer name, and it has three or four methods that mean something, not five methods generated per entity.
+
+The listings below use Dapper, where none of this applies: Dapper gives you connections and SQL strings, and the repository is what turns those into a testable seam. `TestStuff` never learns whether the connection is SQLite, SQL Server, or a mock.
+
 ### Use a base abstract class that is passed a connection
 
 ```cs
