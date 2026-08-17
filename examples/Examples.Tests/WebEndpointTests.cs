@@ -12,8 +12,11 @@ namespace Examples.Tests;
 [TestFixture]
 public class WebEndpointTests
 {
-    private WebApplicationFactory<Program> _factory;
-    private HttpClient _client;
+    // null! because NUnit assigns these in OneTimeSetUp, which the compiler
+    // cannot see.  This is the one place the ! operator is honest: the promise
+    // is kept by the test framework rather than by the constructor.
+    private WebApplicationFactory<Program> _factory = null!;
+    private HttpClient _client = null!;
 
     [OneTimeSetUp]
     public void SetUp()
@@ -34,8 +37,10 @@ public class WebEndpointTests
     {
         var shows = await _client.GetFromJsonAsync<List<TvShow>>("/api/shows");
 
+        // Is.Not.Null is a runtime check; the compiler does not learn anything
+        // from it, hence the ! on the next line.
         Assert.That(shows, Is.Not.Null);
-        Assert.That(shows.Select(x => x.ShowName), Does.Contain("Star Trek"));
+        Assert.That(shows!.Select(x => x.ShowName), Does.Contain("Star Trek"));
     }
 
     [Test]
@@ -63,7 +68,8 @@ public class WebEndpointTests
             new TvShow { ShowName = "Deleted Show", Rating = 1.0m });
         var show = await created.Content.ReadFromJsonAsync<TvShow>();
 
-        var response = await _client.DeleteAsync($"/api/shows/{show.Id}");
+        Assert.That(show, Is.Not.Null);
+        var response = await _client.DeleteAsync($"/api/shows/{show!.Id}");
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
     }

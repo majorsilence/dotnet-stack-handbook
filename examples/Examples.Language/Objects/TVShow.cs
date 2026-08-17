@@ -8,11 +8,15 @@ public class TVShow
     {
     }
 
-    private string _showName;
+    // Assigned so the compiler knows it is never null before ShowName's setter
+    // runs.  With nullable reference types on, a non-nullable field has to hold
+    // something by the time the constructor exits.
+    private string _showName = string.Empty;
 
     // Public properties can be accessed from any function inside the
-    // class as well as other classes
-    public string ShowName
+    // class as well as other classes.  required means an object initializer has
+    // to set it, so the type cannot be constructed half built.
+    public required string ShowName
     {
         get
         {
@@ -34,7 +38,7 @@ public class TVShow
 
     // The above property is long form.  A shorter form can be done as seen below
     public int ShowLength { get; init; }
-    public string Summary { get; init; }
+    public required string Summary { get; init; }
     public decimal Rating { get; init; }
-    public string Episode { get; init; }
+    public required string Episode { get; init; }
 }

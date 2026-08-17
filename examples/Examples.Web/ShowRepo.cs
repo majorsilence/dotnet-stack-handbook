@@ -6,11 +6,14 @@ public class TvShow
 {
     public long Id { get; set; }
 
+    // Model bound from a form, so the framework - not your code - constructs it.
+    // required would not be enforced there; [Required] and a default are.
     [Required]
     [StringLength(50)]
-    public string ShowName { get; set; }
+    public string ShowName { get; set; } = string.Empty;
 
-    public string Episode { get; set; }
+    // Optional on the form, and the type says so.
+    public string? Episode { get; set; }
 
     [Range(0, 5)]
     public decimal Rating { get; set; }
@@ -19,7 +22,7 @@ public class TvShow
 public interface IShowRepo
 {
     Task<IEnumerable<TvShow>> GetShowsAsync();
-    Task<TvShow> GetShowAsync(long id);
+    Task<TvShow?> GetShowAsync(long id);
     Task<long> InsertAsync(TvShow show);
     Task DeleteAsync(long id);
 }
@@ -45,7 +48,7 @@ public class InMemoryShowRepo : IShowRepo
         }
     }
 
-    public Task<TvShow> GetShowAsync(long id)
+    public Task<TvShow?> GetShowAsync(long id)
     {
         lock (_lock)
         {

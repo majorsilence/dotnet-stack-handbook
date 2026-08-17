@@ -8,7 +8,7 @@ namespace Examples.Data;
 public class EfTvShow
 {
     public int Id { get; set; }
-    public string ShowName { get; set; }
+    public required string ShowName { get; set; }
     public decimal Rating { get; set; }
 }
 

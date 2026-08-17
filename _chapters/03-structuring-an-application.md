@@ -176,7 +176,9 @@ namespace MajorSilence.DataAccess
 {
     public interface ITestRepo
     {
-        string GetName();
+        // string? and not string: the table may be empty, and FirstOrDefault
+        // returns null when it is.  The signature is where that belongs.
+        string? GetName();
         void InsertData(string name);
     }
 
@@ -184,7 +186,7 @@ namespace MajorSilence.DataAccess
     {
         public TestRepo(string cnStr) : base(cnStr) { }
 
-        public string GetName()
+        public string? GetName()
         {
             return this.WithConnection(cn =>
             {
@@ -224,7 +226,7 @@ namespace MajorSilence.DataAccess
             this.cnStr = cnStr;
         }
 
-        public string GetName()
+        public string? GetName()
         {
             using (var cn = new SqliteConnection(cnStr))
             {
@@ -263,7 +265,10 @@ namespace MajorSilence.BusinessStuff
         public void DoStuff()
         {
             repo.InsertData("The Name");
-            string name = repo.GetName();
+
+            // GetName returns string?, so the empty table case is handled here
+            // instead of turning up later as a NullReferenceException.
+            string name = repo.GetName() ?? "(no rows)";
 
             // Do stuff with the name
         }

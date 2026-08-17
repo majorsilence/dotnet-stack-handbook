@@ -55,8 +55,9 @@ matter, and the site renders a link to it.
 Two rules keep the tree honest:
 
 - **The code matches the book.** Where a listing is awkward, the book gets fixed,
-  not the example. Nullable reference types are off for this reason: the chapters
-  do not teach them, so turning them on would force every listing to diverge.
+  not the example. Nullable reference types are on, with nullable warnings
+  promoted to errors, so a listing cannot quietly start lying about what can be
+  null; the language chapter teaches the feature rather than sidestepping it.
 - **Anything needing a server is compiled but not run.** The SQL Server and
   PostgreSQL listings, and the `HttpClient` downloader, are built by CI so an API
   change still breaks the build, but nothing in the test run depends on a network

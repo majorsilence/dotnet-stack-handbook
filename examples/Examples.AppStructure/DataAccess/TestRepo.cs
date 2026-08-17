@@ -5,7 +5,9 @@ namespace MajorSilence.DataAccess;
 
 public interface ITestRepo
 {
-    string GetName();
+    // string? because the table can be empty and FirstOrDefault says so.  The
+    // signature is where that fact belongs; callers then have to deal with it.
+    string? GetName();
     void InsertData(string name);
 }
 
@@ -13,7 +15,7 @@ public class TestRepo : BaseRepo, ITestRepo
 {
     public TestRepo(string cnStr) : base(cnStr) { }
 
-    public string GetName()
+    public string? GetName()
     {
         return this.WithConnection(cn =>
         {
@@ -40,7 +42,7 @@ public class TestRepoNobase : ITestRepo
         this.cnStr = cnStr;
     }
 
-    public string GetName()
+    public string? GetName()
     {
         using (var cn = new SqliteConnection(cnStr))
         {

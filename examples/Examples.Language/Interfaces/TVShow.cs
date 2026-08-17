@@ -19,12 +19,12 @@ public interface TVShow
 
 public class ComedyShow : TVShow
 {
-    public string ShowName { get; init; }
+    public required string ShowName { get; init; }
     public int ShowLength { get; init; }
-    public string Summary { get; init; }
+    public required string Summary { get; init; }
     public decimal Rating { get; init; }
-    public string Episode { get; init; }
-    public string ParentalGuide { get; init; }
+    public required string Episode { get; init; }
+    public required string ParentalGuide { get; init; }
 
     // includeSummary is a method parameter
     public void PrettyPrint(bool includeSummary)
@@ -47,12 +47,12 @@ public class ComedyShow : TVShow
 
 public class AdventureShow : TVShow
 {
-    public string ShowName { get; init; }
+    public required string ShowName { get; init; }
     public int ShowLength { get; init; }
-    public string Summary { get; init; }
+    public required string Summary { get; init; }
     public decimal Rating { get; init; }
-    public string Episode { get; init; }
-    public string ParentalGuide { get; init; }
+    public required string Episode { get; init; }
+    public required string ParentalGuide { get; init; }
 
     // includeSummary is a method parameter
     public void PrettyPrint(bool includeSummary)

@@ -32,6 +32,8 @@ Examples are Linux first, because that is where most .NET now runs in production
 
 C# and VB appear side by side in the early chapters. Later chapters are mostly C#, not out of any judgement about VB, but because repeating every listing twice would double the length of the book without teaching anything the first two chapters have not already shown.
 
+Nullable reference types are on, in the examples solution and in the listings, because they are on in every project `dotnet new` creates and a book whose code produces warnings the moment it is pasted somewhere real is not much use. A `string?` in a listing means the value can be null and the surrounding code deals with it. [The Language: C# and VB](01-language-basics.html#nullable-reference-types) covers the feature itself.
+
 ## Licence {#licence}
 
 The prose is licensed [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The code samples, and everything in the `examples/` and `tools/` directories, are MIT.

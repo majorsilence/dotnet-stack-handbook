@@ -99,6 +99,6 @@ public static class Sqlite
 public class TvShow
 {
     public int Id { get; set; }
-    public string ShowName { get; set; }
+    public required string ShowName { get; set; }
     public double Rating { get; set; }
 }

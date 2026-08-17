@@ -5,7 +5,9 @@ namespace Examples.AppStructure.Events.BuiltIn
 {
     public class TheExample
     {
-        public event System.EventHandler DoSomething;
+        // Nullable: an event with nobody subscribed is null, which is why every
+        // raise below has to check.
+        public event System.EventHandler? DoSomething;
 
         public void TheTest()
         {
@@ -26,7 +28,7 @@ namespace Examples.AppStructure.Events.CustomDelegate
     public class TheExample
     {
         public delegate void MyCustomEventHandler(object sender, System.EventArgs e);
-        public event MyCustomEventHandler DoSomething;
+        public event MyCustomEventHandler? DoSomething;
 
         public void TheTest()
         {
@@ -76,7 +78,7 @@ namespace Examples.AppStructure.Events.Custom
 
     public class Publisher
     {
-        public event MyCustomEventHandler DoSomething;
+        public event MyCustomEventHandler? DoSomething;
 
         public void Raise()
         {

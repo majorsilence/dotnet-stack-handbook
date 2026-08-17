@@ -8,7 +8,7 @@ examples: Examples.Language
 
 C# and VB are two languages over one runtime. They compile to the same IL, use the same base class library, and can call each other freely inside one solution. Choosing between them is a matter of taste and of what the team already knows, not of capability.
 
-This chapter covers the three things everything else is built from: variables to hold values, objects to group values with the code that operates on them, and interfaces to describe what an object can do without saying how. Both languages are shown side by side throughout, so a VB developer reading C# code, or the reverse, can see the same idea twice.
+This chapter covers the things everything else is built from: variables to hold values, nullability to say which of them can be missing, objects to group values with the code that operates on them, and interfaces to describe what an object can do without saying how. Both languages are shown side by side throughout, so a VB developer reading C# code, or the reverse, can see the same idea twice.
 
 ## Variables
 
@@ -427,6 +427,95 @@ System.Console.WriteLine(o);
 
 Generally I suggest avoiding the Object type as it defeats type checking that a compiler does and in my experience causes a lot of run time errors. The runtime errors are caused when code attempts to do an operation on the object that is not supported by the stored variable type. If we declare the type we want to use in code the compiler can do all the checks that are needed when the program is compiled.
 
+## Nullable reference types {#nullable-reference-types}
+
+Every reference type - `string`, an array, a class you wrote - could always hold `null`, and nothing in the language distinguished a variable that might be empty from one that never is. `NullReferenceException` is the result, and it is still the most common exception in production .NET code.
+
+**Nullable reference types (NRT)** move that distinction into the type. `string` means a string; `string?` means a string or nothing. The compiler then tracks which is which and warns when the two are confused. It is on by default in every project `dotnet new` creates, and it is on for every example in this book.
+
+```xml
+<PropertyGroup>
+  <Nullable>enable</Nullable>
+</PropertyGroup>
+```
+
+Three things follow from that one line.
+
+**A `?` on the type means null is expected.** Dereferencing it without checking is a warning.
+
+```cs
+string name = "Star Trek";   // never null
+string? summary = null;      // may be null
+
+Console.WriteLine(name.Length);      // fine
+Console.WriteLine(summary.Length);   // warning CS8602: may be null here
+
+if (summary is not null)
+{
+    Console.WriteLine(summary.Length);   // fine, the check narrowed the type
+}
+
+// or shorter
+Console.WriteLine(summary?.Length);        // null if summary is null
+Console.WriteLine(summary ?? "no summary"); // a value either way
+```
+
+The narrowing is real flow analysis, not a special case for `is not null`. An early `return`, a `throw`, a `string.IsNullOrEmpty` check - the compiler follows all of them and stops warning on the branch where the value cannot be null.
+
+**A non-nullable field or property has to hold something by the time the constructor exits.** That is where most of the warnings in an existing codebase come from, and there are three honest answers:
+
+```cs
+public class Show
+{
+    // 1. required: the caller must set it in an object initializer.
+    public required string ShowName { get; init; }
+
+    // 2. a default: there is a sensible empty value.
+    public string Summary { get; init; } = string.Empty;
+
+    // 3. nullable: it genuinely might not be there.
+    public string? Episode { get; init; }
+}
+
+var show = new Show { ShowName = "Star Trek" };  // Summary and Episode optional
+var broken = new Show();                          // error CS9035: ShowName required
+```
+
+`required` is the one to reach for first. It moves "this object is not valid without a name" from a comment to a compile error.
+
+**The `!` operator turns the warning off.** It asserts that a value is not null and produces no runtime check whatsoever - if you are wrong, you get the same `NullReferenceException` you would have had anyway.
+
+```cs
+// Assigned by a test framework in [SetUp], which the compiler cannot see.
+private HttpClient _client = null!;
+
+// Checked on the line before, but by a method the compiler does not understand.
+Assert.That(shows, Is.Not.Null);
+Assert.That(shows!.Count, Is.GreaterThan(0));
+```
+
+Both of those are legitimate. `!` sprinkled through business logic to make warnings go away is not: it converts a compiler error into a production incident and hides the design question of what the code should do when the value really is missing.
+
+**Where the checking stops.** The compiler only sees annotations, so nullability is advice and not a guarantee:
+
+- Reflection, serialisation and ORMs set properties directly and never ask the compiler's permission. A JSON payload with a missing field will happily leave a non-nullable `string` holding `null`. Validate data crossing the boundary; do not trust the annotation to have done it.
+- Code compiled without NRT, and older NuGet packages, are *oblivious* - the compiler assumes nothing and stays quiet.
+- Nothing here changes what the program does at runtime. `Nullable` is entirely a compile time feature.
+
+**Nullable value types are a different feature with similar syntax.** `int?` has existed since .NET 2.0 and is a real type, `Nullable<int>`, with `HasValue` and `Value`. It costs memory and generates code; `string?` costs nothing.
+
+```cs
+int? episodesWatched = null;      // Nullable<int>, a struct
+if (episodesWatched.HasValue) { }
+```
+
+**VB does not have this.** There is no `Nullable` project property for VB and no `string?` syntax; VB reference types are all nullable, as they always were. The nearest equivalents are `Option Strict On`, argument validation, and `If(value, fallback)` in place of `??`. Where a VB project consumes a C# library, the C# side keeps its annotations and the VB side simply does not see them.
+
+```vb
+Dim summary As String = Nothing
+Console.WriteLine(If(summary, "no summary"))
+```
+
 ## Objects
 
 VB and c# have built in types such as int, bool, string, and others. Now it is time to create types that is more specific to your application
@@ -504,10 +593,13 @@ public class TVShow
     {
     }
 
-    private string _showName;
+    // Nullable reference types are on, so a non-nullable field has to hold
+    // something by the time the constructor exits.
+    private string _showName = string.Empty;
     // Public properties can be accessed from any function inside the
-    // class as well as other classes
-    public string ShowName
+    // class as well as other classes.  required means an object initializer
+    // has to set it.
+    public required string ShowName
     {
         get
         {
@@ -529,9 +621,9 @@ public class TVShow
 
     // The above property is long form.  A shorter form can be done as seen below
     public int ShowLength {get; init;}
-    public string Summary {get; init;}
+    public required string Summary {get; init;}
     public decimal Rating {get; init;}
-    public string Episode {get; init;}
+    public required string Episode {get; init;}
 }
 ```
 
@@ -589,11 +681,11 @@ Functions can return a value or return no value. In vb functions that return a v
 ```cs
 public class TVShow
 {
-    public string ShowName {get; init;}
+    public required string ShowName {get; init;}
     public int ShowLength {get; init;}
-    public string Summary {get; init;}
+    public required string Summary {get; init;}
     public decimal Rating {get; init;}
-    public string Episode {get; init;}
+    public required string Episode {get; init;}
 
     // includeSummary is a method parameter
     public void PrettyPrint(bool includeSummary){
@@ -672,12 +764,12 @@ Below a new class called ComedyShow implements TVShow. Notice line one with **: 
 ```cs
 public class ComedyShow : TVShow
 {
-    public string ShowName {get; init;}
+    public required string ShowName {get; init;}
     public int ShowLength {get; init;}
-    public string Summary {get; init;}
+    public required string Summary {get; init;}
     public decimal Rating {get; init;}
-    public string Episode {get; init;}
-    public string ParentalGuide {get; init;}
+    public required string Episode {get; init;}
+    public required string ParentalGuide {get; init;}
 
     // includeSummary is a method parameter
     public void PrettyPrint(bool includeSummary){
@@ -698,12 +790,12 @@ public class ComedyShow : TVShow
 
 public class AdventureShow : TVShow
 {
-    public string ShowName {get; init;}
+    public required string ShowName {get; init;}
     public int ShowLength {get; init;}
-    public string Summary {get; init;}
+    public required string Summary {get; init;}
     public decimal Rating {get; init;}
-    public string Episode {get; init;}
-    public string ParentalGuide {get; init;}
+    public required string Episode {get; init;}
+    public required string ParentalGuide {get; init;}
 
     // includeSummary is a method parameter
     public void PrettyPrint(bool includeSummary){

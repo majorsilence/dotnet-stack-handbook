@@ -13,7 +13,9 @@ public class TestStuff
     public void DoStuff()
     {
         repo.InsertData("The Name");
-        string name = repo.GetName();
+        // GetName returns string?, so the null case has to be handled here
+        // rather than discovered later.
+        string name = repo.GetName() ?? "(no rows)";
 
         // Do stuff with the name
         Console.WriteLine($"TestStuff read back: {name}");

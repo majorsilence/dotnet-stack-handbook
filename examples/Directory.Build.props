@@ -11,12 +11,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
 
     <!--
-      Off on purpose.  These files exist to prove the listings in the book
-      compile, so they have to match what the book prints, and the book does not
-      teach nullable reference types.  Turning this on would make the examples
-      and the chapters disagree, which defeats the point of having them.
+      On, because `dotnet new` has it on and so does every project a reader will
+      paste these listings into.  The chapters teach it rather than sidestep it:
+      see "Nullable reference types" in the language chapter.  Warnings are
+      errors here so a listing cannot quietly start lying about what can be null.
     -->
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>$(WarningsAsErrors);Nullable</WarningsAsErrors>
 
     <!-- These are listings in a book: they are read more than they are run. -->
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
